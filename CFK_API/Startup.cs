@@ -1,10 +1,14 @@
+using CFK_API.Models;
 using CFK_API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using System.Text;
 
 namespace CFK_API
 {
@@ -32,11 +36,38 @@ namespace CFK_API
                 .SetMediaTypeMappingForFormat("json", MediaTypeHeaderValue.Parse("application/json"));
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            // Add Cors support.
             services.AddCors();
 
+            // Add JWT support.
+            var JwtConfig = Configuration.GetSection("JWT");
+            var Key = Encoding.UTF8.GetBytes(JwtConfig.Key);
+            services.Configure<JWT>(JwtConfig);
+
+            services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+            {
+                o.RequireHttpsMetadata = true;
+                o.SaveToken = true;
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Key),
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true
+                };
+            });
+
+            // Add more services here.
             services.AddSingleton<IDbContainer>(Base.Container);
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<ITokenService, TokenService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,6 +83,14 @@ namespace CFK_API
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors(o => o
+                .AllowAnyMethod()
+                .AllowAnyOrigin()
+                .AllowCredentials()
+                );
+
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

@@ -10,7 +10,7 @@ namespace CFK_API.Services
     {
         User Create(string Email, string Password, string FullName, int Creator_ID);
 
-        UserExt Authenticate(string Email, string Password);
+        Models.Projections.Token Authenticate(string Email, string Password);
 
         bool Lock(int User_ID = -1);
 
@@ -29,7 +29,10 @@ namespace CFK_API.Services
         private readonly string CreateUser
             = @"INSERT INTO Dim_Users VALUES ( @FullName, @Email, @Password, '', 0, @CreatedAt, @CreatedBy); SELECT CAST(SCOPE_IDENTITY() as int)";
 
-        public UserExt Authenticate(string Email, string Password)
+        private readonly string GetUser
+            = @"SELECT * FROM Dim_Users WHERE User_ID = @User_ID";
+
+        public Models.Projections.Token Authenticate(string Email, string Password)
         {
             throw new NotImplementedException();
         }
@@ -63,7 +66,7 @@ namespace CFK_API.Services
 
         public User GetOne(int User_ID = -1)
         {
-            throw new NotImplementedException();
+            return Container.Connect().Query<User>(GetUser, new { User_ID }).Single();
         }
 
         public bool Lock(int User_ID = -1)

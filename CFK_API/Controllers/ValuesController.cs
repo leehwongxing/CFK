@@ -8,18 +8,18 @@ namespace CFK_API.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private IUserService Users { get; set; }
+        private ITokenService Users { get; set; }
 
-        public ValuesController(IUserService _UserService)
+        public ValuesController(ITokenService _Service)
         {
-            Users = _UserService;
+            Users = _Service;
         }
 
         // GET api/values
         [HttpGet]
-        public ActionResult<User> Get()
+        public ActionResult<Models.Projections.Token> Get()
         {
-            return Users.Create("leehwongxing@yandex.ru", "saocungduoc", "Lê Quang Vinh", 666);
+            return Users.CreateToken(1, 1);
         }
 
         // GET api/values/5
