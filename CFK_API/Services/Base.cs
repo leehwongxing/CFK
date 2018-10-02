@@ -12,7 +12,7 @@ namespace CFK_API.Services
     {
         SqlConnection Connect();
 
-        Models._Config Config { get; }
+        Models.Vault Config { get; }
     }
 
     public class Base : IDbContainer
@@ -21,19 +21,19 @@ namespace CFK_API.Services
 
         public static Base Container { get { return LazyBase.Value; } }
 
-        public _Config Config => _config;
+        public Vault Config => _config;
 
-        private readonly string PlainFile = ".poco";
+        private readonly string PlainFile = ".vault";
 
-        private readonly string CompressedFile = ".sys";
+        private readonly string CompressedFile = ".cache";
 
-        private _Config _config { get; set; }
+        private Vault _config { get; set; }
 
         private SqlConnection _conn { get; set; }
 
         private Base()
         {
-            _config = new _Config();
+            _config = new Vault();
 
             if (!File.Exists(CompressedFile))
             {
@@ -51,7 +51,7 @@ namespace CFK_API.Services
             {
                 var PlainConfig = File.ReadAllBytes(PlainFile);
 
-                _config = JSON.Deserialize<_Config>(Encoding.UTF8.GetString(PlainConfig));
+                _config = JSON.Deserialize<Vault>(Encoding.UTF8.GetString(PlainConfig));
 
                 using (var FS = new FileStream(CompressedFile, FileMode.CreateNew))
                 using (var DF = new DeflateStream(FS, CompressionMode.Compress))
@@ -60,7 +60,13 @@ namespace CFK_API.Services
                     DF.Flush();
                 }
 
-                File.Delete(PlainFile);
+                var OnDev = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                    .CompareTo("Development");
+
+                if (OnDev != 0)
+                {
+                    File.Delete(PlainFile);
+                }
             }
             catch (Exception e)
             {
@@ -85,7 +91,7 @@ namespace CFK_API.Services
                     DF.CopyTo(MS);
                 }
 
-                _config = JSON.Deserialize<Models._Config>(Encoding.UTF8.GetString(MS.ToArray()));
+                _config = JSON.Deserialize<Models.Vault>(Encoding.UTF8.GetString(MS.ToArray()));
                 MS.Dispose();
             }
             catch (Exception e)

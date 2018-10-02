@@ -1,6 +1,6 @@
-﻿namespace CFK_API.Models
+namespace CFK_API.Models
 {
-    public class _Config
+    public class Vault
     {
         public string ConnectString { get; set; }
 
@@ -8,7 +8,7 @@
 
         public string Salt { get; set; }
 
-        public _Config()
+        public Vault()
         {
             ConnectString = "";
             JWT_Secret = "";
