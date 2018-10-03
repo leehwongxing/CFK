@@ -20,6 +20,8 @@ namespace CFK_API.Services
         bool UpdateToken(long Token_ID = -1, string Content = "");
 
         bool DeleteToken(long Token_ID = -1);
+
+        Token GetToken(long Token_ID = -1);
     }
 
     public class TokenService : ITokenService
@@ -29,9 +31,20 @@ namespace CFK_API.Services
         private IUserService Users { get; set; }
         private IRoleService Roles { get; set; }
 
-        private readonly string Create = @"INSERT INTO Dim_Tokens VALUES (@User_ID, '', @Origin, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as bigint)";
-        private readonly string Delete = @"DELETE FROM Dim_Tokens WHERE Token_ID = @Token_ID";
-        private readonly string Update = @"UPDATE Dim_Tokens SET Content = @Content WHERE Token_ID = @Token_ID";
+        private readonly string Create
+            = @"INSERT INTO Dim_Tokens VALUES (@User_ID, '', @Origin, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as bigint)";
+
+        private readonly string Delete
+            = @"DELETE FROM Dim_Tokens WHERE Token_ID = @Token_ID";
+
+        private readonly string Update
+            = @"UPDATE Dim_Tokens SET Content = @Content WHERE Token_ID = @Token_ID";
+
+        private readonly string SelectOnes
+            = @"SELECT * FROM Dim_Tokens WHERE User_ID = @User_ID";
+
+        private readonly string Select
+             = @"SELECT * FROM Dim_Tokens WHERE Token_ID = @Token_ID";
 
         public TokenService(IDbContainer container, IOptions<JWT> config, IUserService users, IRoleService roles)
         {
@@ -52,13 +65,24 @@ namespace CFK_API.Services
                 return null;
             }
 
+            var _Token = new Token
+            {
+                User_ID = User_ID,
+                Origin = JwtConfig.Issuer,
+                CreatedAt = _CreatedAt,
+                Content = ""
+            };
+
+            _Token.Token_ID = Container.Connect().Query<long>(Create, _Token).Single();
+
             var Handler = new JwtSecurityTokenHandler();
             var Key = Encoding.UTF8.GetBytes(JwtConfig.Key);
 
             // Adding Roles and stuffs into JWT Token
             var Claims = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.PrimarySid, User_ID.ToString()),
-                    new Claim(ClaimTypes.PrimaryGroupSid, Store_ID.ToString())
+                    new Claim(ClaimTypes.PrimaryGroupSid, Store_ID.ToString()),
+                    new Claim(ClaimTypes.UserData, _Token.Token_ID.ToString())
                 });
 
             foreach (var _role in _Roles)
@@ -79,16 +103,6 @@ namespace CFK_API.Services
 
             var _UserToken = Handler.CreateEncodedJwt(Descriptor);
 
-            var _Token = new Token
-            {
-                User_ID = User_ID,
-                Origin = JwtConfig.Issuer,
-                CreatedAt = _CreatedAt,
-                Content = _UserToken
-            };
-
-            _Token.Token_ID = Container.Connect().Query<long>(Create, _Token).Single();
-
             return new Models.Projections.Token
             {
                 User_ID = User_ID,
@@ -102,17 +116,30 @@ namespace CFK_API.Services
 
         public bool DeleteToken(long Token_ID = -1)
         {
-            throw new NotImplementedException();
+            return Container.Connect().Execute(Delete, new { Token_ID }) > 0 ? true : false;
         }
 
         public IEnumerable<Token> GetTokens(int User_ID = -1)
         {
-            throw new NotImplementedException();
+            return Container.Connect().Query<Token>(SelectOnes, new { User_ID });
         }
 
         public bool UpdateToken(long Token_ID = -1, string Content = "")
         {
-            throw new NotImplementedException();
+            return Container.Connect().Execute(Update, new { Token_ID, Content }) > 0 ? true : false;
+        }
+
+        public Token GetToken(long Token_ID = -1)
+        {
+            try
+            {
+                return Container.Connect().Query<Token>(Select, new { Token_ID }).Single();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
     }
 }

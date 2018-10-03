@@ -18,7 +18,7 @@ namespace CFK_API.Services
             = @"INSERT INTO Dim_Roles VALUES (@Role_ID, @RoleName, @IsGlobal)";
 
         private string GetOneRoles(bool HasStoreID = true)
-            => string.Concat("SELECT * FROM UserRoles WHERE User_ID = @User_ID ", (HasStoreID ? "AND Store_ID = @Store_ID" : ""));
+            => string.Concat(@"SELECT * FROM UserRoles WHERE User_ID = @User_ID ", (HasStoreID ? @"AND Store_ID = @Store_ID" : @""));
 
         private IDbContainer Container;
 
@@ -42,10 +42,7 @@ namespace CFK_API.Services
             {
                 return _Role;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         public IEnumerable<Role> GetRoles(int User_ID = -1, int Store_ID = -1)

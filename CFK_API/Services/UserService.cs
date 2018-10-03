@@ -10,7 +10,7 @@ namespace CFK_API.Services
     {
         User Create(string Email, string Password, string FullName, int Creator_ID);
 
-        Models.Projections.Token Authenticate(string Email, string Password);
+        Models.Projections.Token Authenticate(string Email, string Password, int Store_ID);
 
         bool Lock(int User_ID = -1);
 
@@ -19,12 +19,17 @@ namespace CFK_API.Services
 
     public class UserService : IUserService
     {
-        private IDbContainer Container;
+        private IDbContainer Container { get; set; }
+        private ITokenService Tokens { get; set; }
 
-        public UserService(IDbContainer container)
+        public UserService(IDbContainer container, ITokenService tokens)
         {
             Container = container;
+            Tokens = tokens;
         }
+
+        private readonly string FindUser
+            = @"SELECT * FROM Dim_Users WHERE Email = @Email AND Password = @Password";
 
         private readonly string CreateUser
             = @"INSERT INTO Dim_Users VALUES ( @FullName, @Email, @Password, '', 0, @CreatedAt, @CreatedBy); SELECT CAST(SCOPE_IDENTITY() as int)";
@@ -32,9 +37,32 @@ namespace CFK_API.Services
         private readonly string GetUser
             = @"SELECT * FROM Dim_Users WHERE User_ID = @User_ID";
 
-        public Models.Projections.Token Authenticate(string Email, string Password)
+        private readonly string LockUser
+            = @"UPDATE Dim_Users SET IsLocked = 1 WHERE User_ID = @User_ID";
+
+        public Models.Projections.Token Authenticate(string Email, string Password, int Store_ID)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            {
+                return null;
+            }
+
+            var _Input = new
+            {
+                Email,
+                Password = Compute.Hash.Saltier(Password, Container.Config.Salt)
+            };
+
+            var _User = Container.Connect().Query<User>(FindUser, _Input).Single();
+
+            if (_User.IsLocked)
+            {
+                return null;
+            }
+            else
+            {
+                return Tokens.CreateToken(_User.User_ID, Store_ID);
+            }
         }
 
         public User Create(string Email, string Password, string FullName, int Creator_ID)
@@ -71,7 +99,7 @@ namespace CFK_API.Services
 
         public bool Lock(int User_ID = -1)
         {
-            throw new NotImplementedException();
+            return Container.Connect().Execute(LockUser, new { User_ID }) > 0 ? true : false;
         }
     }
 }
