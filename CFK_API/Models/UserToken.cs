@@ -1,6 +1,6 @@
 namespace CFK_API.Models
 {
-    public class Token
+    public class UserToken
     {
         public long Token_ID { get; set; }
         public int User_ID { get; set; }
@@ -8,7 +8,7 @@ namespace CFK_API.Models
         public string Origin { get; set; }
         public long CreatedAt { get; set; }
 
-        public Token()
+        public UserToken()
         {
             CreatedAt = Compute.Time.UnixNow;
         }
