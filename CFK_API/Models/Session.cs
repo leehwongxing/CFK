@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace CFK_API.Models
 {
-    public class CustomerSession
+    public class Session
     {
         public long Session_ID { get; set; }
 

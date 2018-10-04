@@ -15,13 +15,13 @@ namespace CFK_API.Services
     {
         Models.Projections.Token CreateToken(int User_ID = -1, int Store_ID = -1);
 
-        IEnumerable<UserToken> GetTokens(int User_ID = -1);
+        IEnumerable<Token> GetTokens(int User_ID = -1);
 
         bool UpdateToken(long Token_ID = -1, string Content = "");
 
         bool DeleteToken(long Token_ID = -1);
 
-        UserToken GetToken(long Token_ID = -1);
+        Token GetToken(long Token_ID = -1);
     }
 
     public class TokenService : ITokenService
@@ -65,7 +65,7 @@ namespace CFK_API.Services
                 return null;
             }
 
-            var _Token = new UserToken
+            var _Token = new Token
             {
                 User_ID = User_ID,
                 Origin = JwtConfig.Issuer,
@@ -119,9 +119,9 @@ namespace CFK_API.Services
             return Container.Connect().Execute(Delete, new { Token_ID }) > 0 ? true : false;
         }
 
-        public IEnumerable<UserToken> GetTokens(int User_ID = -1)
+        public IEnumerable<Token> GetTokens(int User_ID = -1)
         {
-            return Container.Connect().Query<UserToken>(SelectOnes, new { User_ID });
+            return Container.Connect().Query<Token>(SelectOnes, new { User_ID });
         }
 
         public bool UpdateToken(long Token_ID = -1, string Content = "")
@@ -129,11 +129,11 @@ namespace CFK_API.Services
             return Container.Connect().Execute(Update, new { Token_ID, Content }) > 0 ? true : false;
         }
 
-        public UserToken GetToken(long Token_ID = -1)
+        public Token GetToken(long Token_ID = -1)
         {
             try
             {
-                return Container.Connect().Query<UserToken>(Select, new { Token_ID }).Single();
+                return Container.Connect().Query<Token>(Select, new { Token_ID }).Single();
             }
             catch (Exception e)
             {

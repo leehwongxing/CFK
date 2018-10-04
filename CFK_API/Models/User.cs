@@ -1,33 +1,38 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CFK_API.Models
 {
     public class User
     {
-        [Range(-1, int.MaxValue)]
+        [Required]
+        [Range(-1, int.MaxValue, ErrorMessage = "User_ID can't be 0 or negative")]
         public int User_ID { get; set; }
 
         [Required]
-        [MinLength(1)]
+        [RegularExpression("[\\p{L}\\s]+", ErrorMessage = "Username only support Latin characters")]
+        public string Username { get; set; }
+
+        [Required]
+        [MinLength(1, ErrorMessage = "Fullname mustn't be empty")]
         public string FullName { get; set; }
 
         [Required]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Email must be a valid email address")]
         public string Email { get; set; }
 
         [Required]
-        [MinLength(8)]
+        [MinLength(10, ErrorMessage = "Password should be longer, like 10 chars at least")]
         public string Password { get; set; }
 
-        public string ResetToken { get; set; }
+        public long VerifiedAt { get; set; }
 
         public bool IsLocked { get; set; }
 
-        [Range(1, long.MaxValue)]
+        [Range(1, long.MaxValue, ErrorMessage = "CreatedAt can't be 0 or negative")]
         public long CreatedAt { get; set; }
 
         [Range(1, int.MaxValue)]
-        public long CreatedBy { get; set; }
+        public long Ref_User { get; set; }
 
         public User()
         {

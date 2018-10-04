@@ -1,4 +1,3 @@
-using CFK_API.Models;
 using CFK_API.Services;
 using Microsoft.AspNetCore.Mvc;
 

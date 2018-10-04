@@ -1,5 +1,4 @@
 {
-  "ConnectString": "Data Source=127.0.0.1;User ID=sa;Password=saocungduoc;Initial Catalog=CFK;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False",
-  "JWT_Secret": "",
-  "Salt": "Một thằng nào đó cứ than mãi rằng muối biển lại mặn"
+    "ConnectString": "Data Source=127.0.0.1;User ID=sa;Password=saocungduoc;Initial Catalog=CFK;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False",
+    "Salt": "Một thằng nào đó cứ than mãi rằng muối biển lại mặn"
 }

@@ -1,7 +1,6 @@
 using CFK_API.Models;
 using Dapper;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CFK_API.Services
 {
