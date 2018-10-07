@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     10/4/2018 10:56:28 PM                        */
+/* Created on:     10/7/2018 12:30:09 PM                        */
 /*==============================================================*/
 
 
@@ -44,20 +44,6 @@ if exists (select 1
    where r.fkeyid = object_id('Dim_Products') and o.name = 'FK_Product_Category_Dim_Categories')
 alter table Dim_Products
    drop constraint FK_Product_Category_Dim_Categories
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('Dim_Sessions') and o.name = 'FK_CustomerSessions_Dim_Customers')
-alter table Dim_Sessions
-   drop constraint FK_CustomerSessions_Dim_Customers
-go
-
-if exists (select 1
-   from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('Dim_Tokens') and o.name = 'FK_UserTokens_Dim_Users')
-alter table Dim_Tokens
-   drop constraint FK_UserTokens_Dim_Users
 go
 
 if exists (select 1
@@ -276,22 +262,6 @@ if exists (select 1
 go
 
 if exists (select 1
-            from  sysindexes
-           where  id    = object_id('Dim_Sessions')
-            and   name  = 'CUSTOMERSESSIONS_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index Dim_Sessions.CUSTOMERSESSIONS_FK
-go
-
-if exists (select 1
-            from  sysobjects
-           where  id = object_id('Dim_Sessions')
-            and   type = 'U')
-   drop table Dim_Sessions
-go
-
-if exists (select 1
             from  sysobjects
            where  id = object_id('Dim_Status')
             and   type = 'U')
@@ -310,15 +280,6 @@ if exists (select 1
            where  id = object_id('Dim_Stores')
             and   type = 'U')
    drop table Dim_Stores
-go
-
-if exists (select 1
-            from  sysindexes
-           where  id    = object_id('Dim_Tokens')
-            and   name  = 'USERTOKENS_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index Dim_Tokens.USERTOKENS_FK
 go
 
 if exists (select 1
@@ -631,7 +592,7 @@ go
 /*==============================================================*/
 create table Dim_Images (
    Image_ID             bigint               identity,
-   Size                 bigint               not null,
+   FileSize             bigint               not null,
    MIME                 nvarchar(32)         not null,
    SavedAt              nvarchar(2048)       not null,
    MirroredAt           nvarchar(2048)       not null,
@@ -726,27 +687,6 @@ create table Dim_Roles (
 go
 
 /*==============================================================*/
-/* Table: Dim_Sessions                                          */
-/*==============================================================*/
-create table Dim_Sessions (
-   Session_ID           bigint               identity,
-   Customer_ID          bigint               not null,
-   Content              nvarchar(Max)        not null,
-   CreatedAt            bigint               not null,
-   ValidUntil           bigint               not null,
-   constraint PK_DIM_SESSIONS primary key nonclustered (Session_ID)
-)
-go
-
-/*==============================================================*/
-/* Index: CUSTOMERSESSIONS_FK                                   */
-/*==============================================================*/
-create index CUSTOMERSESSIONS_FK on Dim_Sessions (
-Customer_ID ASC
-)
-go
-
-/*==============================================================*/
 /* Table: Dim_Status                                            */
 /*==============================================================*/
 create table Dim_Status (
@@ -789,19 +729,13 @@ go
 /*==============================================================*/
 create table Dim_Tokens (
    Token_ID             bigint               identity,
-   User_ID              int                  not null,
    Content              nvarchar(Max)        not null,
    Origin               nvarchar(128)        not null,
    CreatedAt            bigint               not null,
+   ValidUntil           bigint               not null,
+   IsCustomer           bit                  not null,
+   Ref_SID              bigint               not null,
    constraint PK_DIM_TOKENS primary key nonclustered (Token_ID)
-)
-go
-
-/*==============================================================*/
-/* Index: USERTOKENS_FK                                         */
-/*==============================================================*/
-create index USERTOKENS_FK on Dim_Tokens (
-User_ID ASC
 )
 go
 
@@ -809,7 +743,7 @@ go
 /* Table: Dim_Users                                             */
 /*==============================================================*/
 create table Dim_Users (
-   User_ID              int                  identity,
+   User_ID              bigint               identity,
    Username             nvarchar(32)         not null,
    FullName             nvarchar(256)        not null,
    Email                nvarchar(128)        not null,
@@ -979,7 +913,7 @@ go
 /* Table: UserRoles                                             */
 /*==============================================================*/
 create table UserRoles (
-   User_ID              int                  not null,
+   User_ID              bigint               not null,
    Role_ID              nvarchar(16)         not null,
    CreatedAt            bigint               not null,
    Ref_Store            int                  not null,
@@ -1031,16 +965,6 @@ go
 alter table Dim_Products
    add constraint FK_Product_Category_Dim_Categories foreign key (Cat_ID)
       references Dim_Categories (Cat_ID)
-go
-
-alter table Dim_Sessions
-   add constraint FK_CustomerSessions_Dim_Customers foreign key (Customer_ID)
-      references Dim_Customers (Customer_ID)
-go
-
-alter table Dim_Tokens
-   add constraint FK_UserTokens_Dim_Users foreign key (User_ID)
-      references Dim_Users (User_ID)
 go
 
 alter table OrderStatus
