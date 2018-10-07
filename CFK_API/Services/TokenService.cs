@@ -13,15 +13,31 @@ namespace CFK_API.Services
 {
     public interface ITokenService
     {
-        Models.Projections.Token CreateToken(int User_ID = -1, int Store_ID = -1);
+        Models.Projections.Token CreateUserToken(
+            long User_ID = -1,
+            int Store_ID = -1);
 
-        IEnumerable<Token> GetTokens(int User_ID = -1);
+        Models.Projections.Token CreateCustomerToken(
+            long Customer_ID = -1);
 
-        bool UpdateToken(long Token_ID = -1, string Content = "");
+        IEnumerable<Token> GetTokens(
+            long Ref_SID,
+            bool IsCustomer = true);
 
-        bool DeleteToken(long Token_ID = -1);
+        bool UpdateToken(
+            long Token_ID,
+            string Content = "");
 
-        Token GetToken(long Token_ID = -1);
+        bool RemoveOldToken(
+            long Ref_SID,
+            bool IsCustomer = true,
+            long Exception = -1);
+
+        bool DeleteToken(
+            long Token_ID);
+
+        Token GetToken(
+            long Token_ID);
     }
 
     public class TokenService : ITokenService
@@ -32,7 +48,7 @@ namespace CFK_API.Services
         private IRoleService Roles { get; set; }
 
         private readonly string Create
-            = @"INSERT INTO Dim_Tokens VALUES (@User_ID, '', @Origin, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as bigint)";
+            = @"INSERT INTO Dim_Tokens VALUES ('', @Origin, @CreatedAt, @ValidUntil, @Ref_SID, @IsCustomer); SELECT CAST(SCOPE_IDENTITY() as bigint)";
 
         private readonly string Delete
             = @"DELETE FROM Dim_Tokens WHERE Token_ID = @Token_ID";
@@ -41,12 +57,19 @@ namespace CFK_API.Services
             = @"UPDATE Dim_Tokens SET Content = @Content WHERE Token_ID = @Token_ID";
 
         private readonly string SelectOnes
-            = @"SELECT * FROM Dim_Tokens WHERE User_ID = @User_ID";
+            = @"SELECT * FROM Dim_Tokens WHERE Ref_SID = @Ref_SID and IsCustomer = @IsCustomer";
 
         private readonly string Select
              = @"SELECT * FROM Dim_Tokens WHERE Token_ID = @Token_ID";
 
-        public TokenService(IDbContainer container, IOptions<JWT> config, IUserService users, IRoleService roles)
+        private readonly string RemoveOld =
+            @"DELETE FROM Dim_Tokens WHERE Ref_SID = @Ref_SID and IsCustomer = @IsCustomer and Token_ID != @Exception";
+
+        public TokenService(
+            IDbContainer container,
+            IOptions<JWT> config,
+            IUserService users,
+            IRoleService roles)
         {
             Container = container;
             JwtConfig = config.Value;
@@ -54,43 +77,43 @@ namespace CFK_API.Services
             Roles = roles;
         }
 
-        public Models.Projections.Token CreateToken(int User_ID = -1, int Store_ID = -1)
+        private string CreateToken(
+            HashSet<string> Roles,
+            long Ref_SID,
+            long Token_ID = -1,
+            int Store_ID = -1)
         {
-            var _User = Users.GetOne(User_ID);
-            var _Roles = Roles.GetRoles(User_ID, Store_ID);
             var _CreatedAt = Compute.Time.UnixNow;
-
-            if (_User == null)
+            if (Roles.Count() == 0)
             {
-                return null;
+                Roles = new HashSet<string>
+                {
+                    "CUSTOMER"
+                };
             }
 
-            var _Token = new Token
+            if (Ref_SID < 0)
             {
-                User_ID = User_ID,
-                Origin = JwtConfig.Issuer,
-                CreatedAt = _CreatedAt,
-                Content = ""
-            };
-
-            _Token.Token_ID = Container.Connect().Query<long>(Create, _Token).Single();
+                throw new Exception("Invalid Ref_SID, must be greater than 0");
+            }
 
             var Handler = new JwtSecurityTokenHandler();
             var Key = Encoding.UTF8.GetBytes(JwtConfig.Key);
 
             // Adding Roles and stuffs into JWT Token
             var Claims = new ClaimsIdentity(new Claim[] {
-                    new Claim(ClaimTypes.PrimarySid, User_ID.ToString()),
-                    new Claim(ClaimTypes.PrimaryGroupSid, Store_ID.ToString()),
-                    new Claim(ClaimTypes.UserData, _Token.Token_ID.ToString())
+                    new Claim(ClaimTypes.PrimarySid, Ref_SID.ToString()),
+                    new Claim(ClaimTypes.UserData, Token_ID.ToString())
                 });
 
-            foreach (var _role in _Roles)
+            if (Store_ID > 0)
+                Claims.AddClaim(new Claim(ClaimTypes.PrimaryGroupSid, Store_ID.ToString()));
+
+            foreach (string Role in Roles)
             {
-                Claims.AddClaim(new Claim(ClaimTypes.Role, _role.Role_ID));
+                Claims.AddClaim(new Claim(ClaimTypes.Role, Role));
             }
 
-            // Adding the basic stuffs to the Tokens's content
             var Descriptor = new SecurityTokenDescriptor
             {
                 Subject = Claims,
@@ -101,35 +124,66 @@ namespace CFK_API.Services
                 Audience = JwtConfig.Audience,
             };
 
-            var _UserToken = Handler.CreateEncodedJwt(Descriptor);
+            return Handler.CreateEncodedJwt(Descriptor);
+        }
+
+        public Models.Projections.Token CreateUserToken(
+            long User_ID,
+            int Store_ID = -1)
+        {
+            var _User = Users.GetOne(User_ID);
+            var _Roles = Roles.GetOneRoleIDs(User_ID, Store_ID);
+            var _CreatedAt = Compute.Time.UnixNow;
+            var _ExpireOn = Compute.Time.UnixAt(DateTime.UtcNow.AddDays(JwtConfig.TTL));
+            if (_User == null)
+            {
+                return null;
+            }
+
+            var _Token = new Token
+            {
+                Ref_SID = User_ID,
+                Origin = JwtConfig.Issuer,
+                CreatedAt = _CreatedAt,
+                IsCustomer = false,
+                ValidUntil = _ExpireOn,
+                Content = ""
+            };
+
+            _Token.Token_ID = Container.Connect().Query<long>(Create, _Token).Single();
+
+            var _UserToken = CreateToken(new HashSet<string>(_Roles), _Token.Ref_SID, _Token.Token_ID, Store_ID);
 
             return new Models.Projections.Token
             {
-                User_ID = User_ID,
-                Store_ID = Store_ID,
+                Ref_SID = User_ID,
                 FullName = _User.FullName,
                 CreatedAt = Compute.Time.FromUnix(_CreatedAt),
-                ExpireOn = Compute.Time.FromUnix(_CreatedAt).AddDays(JwtConfig.TTL),
+                ValidUntil = Compute.Time.FromUnix(_ExpireOn),
                 Content = _UserToken
             };
         }
 
-        public bool DeleteToken(long Token_ID = -1)
+        public Models.Projections.Token CreateCustomerToken(long Customer_ID = -1)
+        {
+            return null;
+        }
+
+        public bool DeleteToken(
+            long Token_ID)
         {
             return Container.Connect().Execute(Delete, new { Token_ID }) > 0 ? true : false;
         }
 
-        public IEnumerable<Token> GetTokens(int User_ID = -1)
-        {
-            return Container.Connect().Query<Token>(SelectOnes, new { User_ID });
-        }
-
-        public bool UpdateToken(long Token_ID = -1, string Content = "")
+        public bool UpdateToken(
+            long Token_ID,
+            string Content = "")
         {
             return Container.Connect().Execute(Update, new { Token_ID, Content }) > 0 ? true : false;
         }
 
-        public Token GetToken(long Token_ID = -1)
+        public Token GetToken(
+            long Token_ID)
         {
             try
             {
@@ -140,6 +194,28 @@ namespace CFK_API.Services
                 Console.WriteLine(e);
                 return null;
             }
+        }
+
+        public bool RemoveOldToken(
+            long Ref_SID,
+            bool IsCustomer = true,
+            long Exception = -1)
+        {
+            if (Ref_SID < 0)
+            {
+                throw new Exception("Invalid Ref_SID, must be greater than 0");
+            }
+
+            return Container
+                .Connect()
+                .Execute(RemoveOld, new { Ref_SID, IsCustomer, Exception }) > 0 ? true : false;
+        }
+
+        public IEnumerable<Token> GetTokens(
+            long Ref_SID,
+            bool IsCustomer)
+        {
+            return Container.Connect().Query<Token>(SelectOnes, new { Ref_SID, IsCustomer });
         }
     }
 }

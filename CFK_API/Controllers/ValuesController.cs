@@ -18,7 +18,7 @@ namespace CFK_API.Controllers
         [HttpGet]
         public ActionResult<Models.Projections.Token> Get()
         {
-            return Users.CreateToken(1, 1);
+            return Users.CreateUserToken(1, 1);
         }
 
         // GET api/values/5

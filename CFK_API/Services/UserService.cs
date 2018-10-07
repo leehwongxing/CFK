@@ -8,13 +8,13 @@ namespace CFK_API.Services
 {
     public interface IUserService
     {
-        User Create(string Email, string Password, string FullName, int Creator_ID);
+        User Create(string Email, string Password, string FullName, long Creator_ID);
 
         Models.Projections.Token Authenticate(string Email, string Password, int Store_ID);
 
-        bool Lock(int User_ID = -1);
+        bool Lock(long User_ID);
 
-        User GetOne(int User_ID = -1);
+        User GetOne(long User_ID);
     }
 
     public class UserService : IUserService
@@ -61,11 +61,11 @@ namespace CFK_API.Services
             }
             else
             {
-                return Tokens.CreateToken(_User.User_ID, Store_ID);
+                return Tokens.CreateUserToken(_User.User_ID, Store_ID);
             }
         }
 
-        public User Create(string Email, string Password, string FullName, int Creator_ID)
+        public User Create(string Email, string Password, string FullName, long Creator_ID)
         {
             Password = Compute.Hash.Saltier(Password, Container.Config.Salt);
             User _User = null;
@@ -77,7 +77,7 @@ namespace CFK_API.Services
                     Email = Email,
                     Password = Password,
                     FullName = FullName,
-                    CreatedBy = Creator_ID
+                    Ref_User = Creator_ID
                 };
             }
             catch (ValidationException e)
@@ -92,12 +92,12 @@ namespace CFK_API.Services
             return _User;
         }
 
-        public User GetOne(int User_ID = -1)
+        public User GetOne(long User_ID)
         {
             return Container.Connect().Query<User>(GetUser, new { User_ID }).Single();
         }
 
-        public bool Lock(int User_ID = -1)
+        public bool Lock(long User_ID)
         {
             return Container.Connect().Execute(LockUser, new { User_ID }) > 0 ? true : false;
         }
