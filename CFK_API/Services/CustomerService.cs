@@ -8,14 +8,7 @@ namespace CFK_API.Services
 {
     public interface ICustomerService
     {
-        Models.Projections.Token Register(
-            string Username,
-            string Email,
-            string Password,
-            string FullName,
-            byte Gender,
-            string Birthday = "01-01-2000",
-            string Phone = "");
+        Models.Projections.Token Register(Registry registry);
 
         Models.Projections.Token SignIn(string Email, string Password);
 
@@ -66,25 +59,19 @@ namespace CFK_API.Services
         }
 
         public Models.Projections.Token Register(
-            string Username,
-            string Email,
-            string Password,
-            string FullName,
-            byte Gender,
-            string Birthday = "01-01-2000",
-            String phone = "")
+            Registry registry)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Models.Projections.Token SignIn(string email, string password)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool SignOut()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }
