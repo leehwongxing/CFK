@@ -28,12 +28,17 @@ namespace GTranslator.Views
             var person = People.RequestProfile();
 
             FullName = person.Names[0].DisplayName;
-            Residence = person.Residences
-                .Where(x => x.Current == true)
-                .Select(x => x.Value)
-                .Single();
+            //Residence = person.Residences
+            //    .Where(x => x.Current == true)
+            //    .Select(x => x.Value)
+            //    .Single();
 
             Avatar = person.Photos[0].Url;
+        }
+
+        private void TX_FullName_TextChanged(object sender, System.EventArgs e)
+        {
+
         }
     }
 }

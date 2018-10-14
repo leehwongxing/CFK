@@ -14,7 +14,7 @@ namespace GTranslator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Views.API_SignIn());
+            Application.Run(new Views.API_Translator());
         }
     }
 }

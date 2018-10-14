@@ -1,4 +1,4 @@
-﻿namespace GTranslator.Views
+namespace GTranslator.Views
 {
     partial class API_SignIn
     {
@@ -51,10 +51,11 @@
             this.TX_FullName.Name = "TX_FullName";
             this.TX_FullName.ReadOnly = true;
             this.TX_FullName.ShortcutsEnabled = false;
-            this.TX_FullName.Size = new System.Drawing.Size(308, 20);
+            this.TX_FullName.Size = new System.Drawing.Size(308, 16);
             this.TX_FullName.TabIndex = 1;
             this.TX_FullName.TabStop = false;
             this.TX_FullName.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.TX_FullName.TextChanged += new System.EventHandler(this.TX_FullName_TextChanged);
             // 
             // TX_Residence
             // 
@@ -63,7 +64,7 @@
             this.TX_Residence.Name = "TX_Residence";
             this.TX_Residence.ReadOnly = true;
             this.TX_Residence.ShortcutsEnabled = false;
-            this.TX_Residence.Size = new System.Drawing.Size(308, 20);
+            this.TX_Residence.Size = new System.Drawing.Size(308, 16);
             this.TX_Residence.TabIndex = 2;
             this.TX_Residence.TabStop = false;
             this.TX_Residence.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -79,7 +80,7 @@
             // 
             // API_SignIn
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(332, 503);
             this.Controls.Add(this.BT_SignOff);
