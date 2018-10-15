@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace GTranslator
@@ -17,9 +16,27 @@ namespace GTranslator
             FileStore = Path.Combine(Environment.CurrentDirectory, ".users");
         }
 
-        public static void ResetCredential()
+        public static void Clear(string directory = "")
         {
-            File.Delete(Settings.FileStore);
+            if (directory == "") directory = FileStore;
+
+            File.SetAttributes(directory, FileAttributes.Normal);
+
+            string[] files = Directory.GetFiles(directory);
+            string[] dirs = Directory.GetDirectories(directory);
+
+            foreach (string file in files)
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            foreach (string dir in dirs)
+            {
+                Clear(dir);
+            }
+
+            Directory.Delete(directory, false);
         }
     }
 }

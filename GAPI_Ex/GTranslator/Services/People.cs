@@ -31,7 +31,7 @@ namespace GTranslator.Services
 
         public People()
         {
-            ReInit();
+            //ReInit();
         }
 
         public void ReInit()
@@ -76,10 +76,9 @@ namespace GTranslator.Services
         {
             try
             {
-                Settings.ResetCredential();
+                Settings.Clear();
 
-                ReInit();
-
+                //ReInit();
                 return true;
             }
             catch (Exception e)

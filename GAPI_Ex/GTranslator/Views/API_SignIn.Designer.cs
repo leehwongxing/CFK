@@ -37,9 +37,9 @@ namespace GTranslator.Views
             // 
             // PB_Avatar
             // 
-            this.PB_Avatar.Location = new System.Drawing.Point(95, 95);
+            this.PB_Avatar.Location = new System.Drawing.Point(21, 20);
             this.PB_Avatar.Name = "PB_Avatar";
-            this.PB_Avatar.Size = new System.Drawing.Size(150, 150);
+            this.PB_Avatar.Size = new System.Drawing.Size(100, 100);
             this.PB_Avatar.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.PB_Avatar.TabIndex = 0;
             this.PB_Avatar.TabStop = false;
@@ -47,42 +47,43 @@ namespace GTranslator.Views
             // TX_FullName
             // 
             this.TX_FullName.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TX_FullName.Location = new System.Drawing.Point(12, 270);
+            this.TX_FullName.Font = new System.Drawing.Font("Segoe UI Light", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TX_FullName.Location = new System.Drawing.Point(140, 20);
             this.TX_FullName.Name = "TX_FullName";
             this.TX_FullName.ReadOnly = true;
             this.TX_FullName.ShortcutsEnabled = false;
-            this.TX_FullName.Size = new System.Drawing.Size(308, 16);
+            this.TX_FullName.Size = new System.Drawing.Size(425, 54);
             this.TX_FullName.TabIndex = 1;
             this.TX_FullName.TabStop = false;
-            this.TX_FullName.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.TX_FullName.TextChanged += new System.EventHandler(this.TX_FullName_TextChanged);
+            this.TX_FullName.WordWrap = false;
             // 
             // TX_Residence
             // 
             this.TX_Residence.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TX_Residence.Location = new System.Drawing.Point(12, 303);
+            this.TX_Residence.Font = new System.Drawing.Font("Segoe UI Semilight", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TX_Residence.Location = new System.Drawing.Point(140, 81);
             this.TX_Residence.Name = "TX_Residence";
             this.TX_Residence.ReadOnly = true;
             this.TX_Residence.ShortcutsEnabled = false;
-            this.TX_Residence.Size = new System.Drawing.Size(308, 16);
+            this.TX_Residence.Size = new System.Drawing.Size(301, 31);
             this.TX_Residence.TabIndex = 2;
             this.TX_Residence.TabStop = false;
-            this.TX_Residence.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // BT_SignOff
             // 
-            this.BT_SignOff.Location = new System.Drawing.Point(95, 353);
+            this.BT_SignOff.Location = new System.Drawing.Point(447, 81);
             this.BT_SignOff.Name = "BT_SignOff";
-            this.BT_SignOff.Size = new System.Drawing.Size(150, 45);
+            this.BT_SignOff.Size = new System.Drawing.Size(118, 39);
             this.BT_SignOff.TabIndex = 3;
-            this.BT_SignOff.Text = "Đăng xuất";
+            this.BT_SignOff.Text = "Sign Out";
             this.BT_SignOff.UseVisualStyleBackColor = true;
+            this.BT_SignOff.Click += new System.EventHandler(this.BT_SignOff_Click);
             // 
             // API_SignIn
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(332, 503);
+            this.ClientSize = new System.Drawing.Size(599, 142);
             this.Controls.Add(this.BT_SignOff);
             this.Controls.Add(this.TX_Residence);
             this.Controls.Add(this.TX_FullName);
@@ -93,7 +94,7 @@ namespace GTranslator.Views
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "API_SignIn";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "You\'re signed in as..";
             this.Shown += new System.EventHandler(this.API_SignIn_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.PB_Avatar)).EndInit();
