@@ -8,13 +8,22 @@ namespace CFK_API.Services
 {
     public interface IUserService
     {
-        User Create(string Email, string Password, string FullName, long Creator_ID);
+        User Create(
+            string Email,
+            string Password,
+            string FullName,
+            long Creator_ID = -1);
 
-        Models.Projections.Token Authenticate(string Email, string Password, int Store_ID);
+        Models.Projections.Token Authenticate(
+            string Email,
+            string Password,
+            int Store_ID = -1);
 
-        bool Lock(long User_ID);
+        bool Lock(
+            long User_ID);
 
-        User GetOne(long User_ID);
+        User GetOne(
+            long User_ID);
     }
 
     public class UserService : IUserService
@@ -40,7 +49,10 @@ namespace CFK_API.Services
         private readonly string LockUser
             = @"UPDATE Dim_Users SET IsLocked = 1 WHERE User_ID = @User_ID";
 
-        public Models.Projections.Token Authenticate(string Email, string Password, int Store_ID)
+        public Models.Projections.Token Authenticate(
+            string Email,
+            string Password,
+            int Store_ID = -1)
         {
             if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
@@ -61,13 +73,21 @@ namespace CFK_API.Services
             }
             else
             {
-                return Tokens.CreateUserToken(_User.User_ID, Store_ID);
+                return Tokens.CreateUserToken(
+                    _User.User_ID,
+                    Store_ID);
             }
         }
 
-        public User Create(string Email, string Password, string FullName, long Creator_ID)
+        public User Create(
+            string Email,
+            string Password,
+            string FullName,
+            long Creator_ID = -1)
         {
-            Password = Compute.Hash.Saltier(Password, Container.Config.Salt);
+            Password = Compute.Hash.Saltier(
+                Password,
+                Container.Config.Salt);
             User _User = null;
 
             try
@@ -83,7 +103,6 @@ namespace CFK_API.Services
             catch (ValidationException e)
             {
                 Console.WriteLine(e);
-
                 return null;
             }
 
