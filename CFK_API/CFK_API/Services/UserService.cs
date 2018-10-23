@@ -22,8 +22,9 @@ namespace CFK_API.Services
         bool Lock(
             long User_ID);
 
-        User GetOne(
-            long User_ID);
+        object GetOne(
+            long User_ID,
+            params string[] fields);
     }
 
     public class UserService : IUserService
@@ -44,7 +45,7 @@ namespace CFK_API.Services
             = @"INSERT INTO Dim_Users VALUES ( @FullName, @Email, @Password, '', 0, @CreatedAt, @CreatedBy); SELECT CAST(SCOPE_IDENTITY() as int)";
 
         private readonly string GetUser
-            = @"SELECT * FROM Dim_Users WHERE User_ID = @User_ID";
+            = @"SELECT @Fields FROM Dim_Users WHERE User_ID = @User_ID";
 
         private readonly string LockUser
             = @"UPDATE Dim_Users SET IsLocked = 1 WHERE User_ID = @User_ID";
@@ -74,7 +75,7 @@ namespace CFK_API.Services
             else
             {
                 return Tokens.CreateUserToken(
-                    _User.User_ID,
+                    _User,
                     Store_ID);
             }
         }
@@ -111,9 +112,9 @@ namespace CFK_API.Services
             return _User;
         }
 
-        public User GetOne(long User_ID)
+        public object GetOne(long User_ID, params string[] fields)
         {
-            return Container.Connect().Query<User>(GetUser, new { User_ID }).Single();
+            return Container.Connect().Query<User>(GetUser, new { User_ID, Fields = new User().Include(false, fields) }).Single();
         }
 
         public bool Lock(long User_ID)

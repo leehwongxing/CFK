@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CFK_API.Models
 {
-    public class User
+    public class User : Base<User>
     {
         [Required]
         [Range(-1, int.MaxValue, ErrorMessage = "User_ID can't be 0 or negative")]
@@ -34,10 +35,18 @@ namespace CFK_API.Models
         [Range(1, int.MaxValue)]
         public long Ref_User { get; set; }
 
-        public User()
+        public User() : base()
         {
             CreatedAt = Compute.Time.UnixNow;
             IsLocked = false;
+            Password = "";
+            Username = "";
+            FullName = "";
+            Email = "";
+            Ref_User = -1;
+            VerifiedAt = -1;
+
+            Excluded = new HashSet<string> { "User_ID", "Password", "VerifiedAt" };
         }
     }
 }

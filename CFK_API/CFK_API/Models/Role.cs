@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CFK_API.Models
 {
-    public class Role
+    public class Role : Base<Role>
     {
         [Required(ErrorMessage = "Role_ID mustn't be empty")]
         [MinLength(1)]
@@ -16,7 +16,7 @@ namespace CFK_API.Models
 
         public bool IsGlobal { get; set; }
 
-        public Role()
+        public Role() : base()
         {
             Role_ID = "";
             RoleName = "";

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CFK_API.Models
 {
-    public class Customer
+    public class Customer : Base<Customer>
     {
         [Required]
         [Range(0, long.MaxValue, ErrorMessage = "Customer_ID can't be 0 or negative")]

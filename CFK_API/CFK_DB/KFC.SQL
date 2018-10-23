@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     10/7/2018 12:30:09 PM                        */
+/* Created on:     10/23/2018 7:53:49 PM                        */
 /*==============================================================*/
 
 
@@ -27,9 +27,9 @@ go
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('Dim_CustomerTracking') and o.name = 'FK_OrderTracking_Dim_Stores')
+   where r.fkeyid = object_id('Dim_CustomerTracking') and o.name = 'FK_CustomerTracking_Dim_Stores')
 alter table Dim_CustomerTracking
-   drop constraint FK_OrderTracking_Dim_Stores
+   drop constraint FK_CustomerTracking_Dim_Stores
 go
 
 if exists (select 1
@@ -463,7 +463,7 @@ create table ComboDetails (
    Product_ID           int                  not null,
    BasePrice            double precision     not null,
    Quantity             int                  not null,
-   CreatedAt            bigint               not null,
+   CreatedAt            bigint               not null default -1,
    constraint PK_COMBODETAILS primary key (Combo_ID, Product_ID)
 )
 go
@@ -492,12 +492,12 @@ create table Dim_Addresses (
    Customer_ID          bigint               not null,
    FullName             nvarchar(256)        not null,
    Phone                nvarchar(16)         not null,
-   Detail               nvarchar(512)        not null,
+   StreetDetails        nvarchar(512)        not null,
    Ward                 nvarchar(64)         not null,
    District             nvarchar(64)         not null,
    Province             nvarchar(64)         not null,
-   Priority             int                  not null,
-   CreatedAt            bigint               not null,
+   Priority             int                  not null default 1,
+   CreatedAt            bigint               not null default -1,
    constraint PK_DIM_ADDRESSES primary key nonclustered (Addr_ID)
 )
 go
@@ -516,8 +516,8 @@ go
 create table Dim_Categories (
    Cat_ID               int                  identity,
    CatName              nvarchar(256)        not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
    constraint PK_DIM_CATEGORIES primary key nonclustered (Cat_ID),
    constraint AK_UCATEGORY_DIM_CATE unique (CatName)
 )
@@ -543,7 +543,8 @@ create table Dim_CustomerTracking (
    _Month               smallint             not null,
    _Year                smallint             not null,
    Ref_Order            bigint               not null,
-   Ref_User             bigint               not null,
+   Ref_User             bigint               not null default -1,
+   Ref_Events           nvarchar(Max)        not null,
    constraint PK_DIM_CUSTOMERTRACKING primary key nonclustered (Tracking_ID)
 )
 go
@@ -570,17 +571,17 @@ go
 create table Dim_Customers (
    Customer_ID          bigint               identity,
    Username             nvarchar(32)         not null,
+   FullName             nvarchar(256)        not null,
    Email                nvarchar(128)        not null,
    Password             nvarchar(128)        not null,
-   FullName             nvarchar(256)        not null,
    Gender               smallint             not null,
    Birthday             nvarchar(16)         not null,
    Phone                nvarchar(16)         not null,
-   VerifiedAt           bigint               not null,
-   CreatedAt            bigint               not null,
-   Ref_Avatar           bigint               not null,
-   Ref_Profile          bigint               not null,
+   VerifiedAt           bigint               not null default -1,
    IsLocked             bit                  not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_Avatar           nvarchar(2048)       not null,
+   Ref_Profile          nvarchar(2048)       not null,
    constraint PK_DIM_CUSTOMERS primary key nonclustered (Customer_ID),
    constraint AK_UUSERNAME_DIM_CUST unique (Username),
    constraint AK_UEMAIL_DIM_CUST unique (Email)
@@ -597,9 +598,9 @@ create table Dim_Images (
    SavedAt              nvarchar(2048)       not null,
    MirroredAt           nvarchar(2048)       not null,
    Content              nvarchar(Max)        not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
-   Ref_Customer         bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
+   Ref_Customer         bigint               not null default -1,
    constraint PK_DIM_IMAGES primary key nonclustered (Image_ID)
 )
 go
@@ -614,12 +615,14 @@ create table Dim_Orders (
    ReceipentName        nvarchar(256)        not null,
    ReceipentAddr        nvarchar(Max)        not null,
    Note                 nvarchar(256)        not null,
+   Total                double precision     not null,
    Discount             double precision     not null,
    DiscountNote         nvarchar(256)        not null,
-   Ref_Customer         bigint               not null,
-   Ref_User             bigint               not null,
-   CreatedAt            bigint               not null,
-   SentAt               bigint               not null,
+   Ref_Customer         bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
+   Ref_Store            int                  not null default -1,
+   CreatedAt            bigint               not null default -1,
+   SentAt               bigint               not null default -1,
    constraint PK_DIM_ORDERS primary key nonclustered (Order_ID)
 )
 go
@@ -641,8 +644,8 @@ create table Dim_Products (
    Preview              nvarchar(256)        not null,
    Properties           nvarchar(Max)        not null,
    IsCombo              bit                  not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
    constraint PK_DIM_PRODUCTS primary key nonclustered (Product_ID),
    constraint AK_UPRODUCT_DIM_PROD unique (ProductName)
 )
@@ -665,10 +668,10 @@ create table Dim_Promotions (
    Content              nvarchar(Max)        not null,
    StartTime            bigint               not null,
    EndTime              bigint               not null,
-   Priority             int                  not null,
+   Priority             int                  not null default 1,
    Enabled              bit                  not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
    constraint PK_DIM_PROMOTIONS primary key nonclustered (Promotion_ID),
    constraint AK_UPROMOTION_DIM_PROM unique (Title, StartTime)
 )
@@ -717,8 +720,9 @@ create table Dim_Stores (
    Phone                nvarchar(16)         not null,
    Ward                 nvarchar(64)         not null,
    Province             nvarchar(64)         not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
+   Ref_Zones            nvarchar(Max)        not null,
    constraint PK_DIM_STORES primary key nonclustered (Store_ID),
    constraint AK_USTORE_DIM_STOR unique (StoreName)
 )
@@ -729,13 +733,15 @@ go
 /*==============================================================*/
 create table Dim_Tokens (
    Token_ID             bigint               identity,
+   Revoke_ID            nvarchar(32)         not null,
    Content              nvarchar(Max)        not null,
    Origin               nvarchar(128)        not null,
-   CreatedAt            bigint               not null,
+   CreatedAt            bigint               not null default -1,
    ValidUntil           bigint               not null,
    IsCustomer           bit                  not null,
-   Ref_SID              bigint               not null,
-   constraint PK_DIM_TOKENS primary key nonclustered (Token_ID)
+   Ref_Creator          bigint               not null,
+   constraint PK_DIM_TOKENS primary key nonclustered (Token_ID),
+   constraint AK_UREVOKE_DIM_TOKE unique (Revoke_ID)
 )
 go
 
@@ -748,10 +754,10 @@ create table Dim_Users (
    FullName             nvarchar(256)        not null,
    Email                nvarchar(128)        not null,
    Password             nvarchar(128)        not null,
-   VerifiedAt           bigint               not null,
+   VerifiedAt           bigint               not null default -1,
    IsLocked             bit                  not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
    constraint PK_DIM_USERS primary key nonclustered (User_ID),
    constraint AK_UUSERNAME_DIM_USER unique (Username),
    constraint AK_UEMAIL_DIM_USER unique (Email)
@@ -765,8 +771,8 @@ create table OrderStatus (
    Order_ID             bigint               not null,
    Status               nvarchar(64)         not null,
    Note                 nvarchar(256)        not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
    constraint PK_ORDERSTATUS primary key (Order_ID, Status)
 )
 go
@@ -830,7 +836,7 @@ go
 create table Product_Images (
    Product_ID           int                  not null,
    Image_ID             bigint               not null,
-   CreatedAt            bigint               not null,
+   CreatedAt            bigint               not null default -1,
    constraint PK_PRODUCT_IMAGES primary key (Product_ID, Image_ID)
 )
 go
@@ -887,8 +893,8 @@ go
 create table StoreZones (
    Store_ID             int                  not null,
    Zone_ID              int                  not null,
-   CreatedAt            bigint               not null,
-   Ref_User             bigint               not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_User             bigint               not null default -1,
    constraint PK_STOREZONES primary key (Store_ID, Zone_ID)
 )
 go
@@ -915,8 +921,8 @@ go
 create table UserRoles (
    User_ID              bigint               not null,
    Role_ID              nvarchar(16)         not null,
-   CreatedAt            bigint               not null,
-   Ref_Store            int                  not null,
+   CreatedAt            bigint               not null default -1,
+   Ref_Store            int                  not null default -1,
    constraint PK_USERROLES primary key (User_ID, Role_ID)
 )
 go
@@ -953,7 +959,7 @@ alter table Dim_Addresses
 go
 
 alter table Dim_CustomerTracking
-   add constraint FK_OrderTracking_Dim_Stores foreign key (Store_ID)
+   add constraint FK_CustomerTracking_Dim_Stores foreign key (Store_ID)
       references Dim_Stores (Store_ID)
 go
 

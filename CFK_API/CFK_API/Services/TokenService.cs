@@ -14,11 +14,11 @@ namespace CFK_API.Services
     public interface ITokenService
     {
         Models.Projections.Token CreateUserToken(
-            long User_ID = -1,
+            User user,
             int Store_ID = -1);
 
         Models.Projections.Token CreateCustomerToken(
-            long Customer_ID = -1);
+            Customer customer);
 
         IEnumerable<Token> GetTokens(
             long Ref_SID,
@@ -44,7 +44,6 @@ namespace CFK_API.Services
     {
         private IDbContainer Container { get; set; }
         private JWT JwtConfig { get; set; }
-        private IUserService Users { get; set; }
         private IRoleService Roles { get; set; }
 
         private readonly string Create
@@ -68,12 +67,10 @@ namespace CFK_API.Services
         public TokenService(
             IDbContainer container,
             IOptions<JWT> config,
-            IUserService users,
             IRoleService roles)
         {
             Container = container;
             JwtConfig = config.Value;
-            Users = users;
             Roles = roles;
         }
 
@@ -128,21 +125,20 @@ namespace CFK_API.Services
         }
 
         public Models.Projections.Token CreateUserToken(
-            long User_ID,
+            User user,
             int Store_ID = -1)
         {
-            var _User = Users.GetOne(User_ID);
-            var _Roles = Roles.GetOneRoleIDs(User_ID, Store_ID);
-            var _CreatedAt = Compute.Time.UnixNow;
-            var _ExpireOn = Compute.Time.UnixAt(DateTime.UtcNow.AddDays(JwtConfig.TTL));
-            if (_User == null)
+            if (user == null)
             {
                 return null;
             }
+            var _Roles = Roles.GetOneRoleIDs(user.User_ID, Store_ID);
+            var _CreatedAt = Compute.Time.UnixNow;
+            var _ExpireOn = Compute.Time.UnixAt(DateTime.UtcNow.AddDays(JwtConfig.TTL));
 
             var _Token = new Token
             {
-                Ref_SID = User_ID,
+                Ref_SID = user.User_ID,
                 Origin = JwtConfig.Issuer,
                 CreatedAt = _CreatedAt,
                 IsCustomer = false,
@@ -156,15 +152,15 @@ namespace CFK_API.Services
 
             return new Models.Projections.Token
             {
-                Ref_SID = User_ID,
-                FullName = _User.FullName,
+                Ref_SID = user.User_ID,
+                FullName = user.FullName,
                 CreatedAt = Compute.Time.FromUnix(_CreatedAt),
                 ValidUntil = Compute.Time.FromUnix(_ExpireOn),
                 Content = _UserToken
             };
         }
 
-        public Models.Projections.Token CreateCustomerToken(long Customer_ID = -1)
+        public Models.Projections.Token CreateCustomerToken(Customer customer)
         {
             return null;
         }

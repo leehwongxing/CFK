@@ -64,7 +64,7 @@ namespace CFK_API
             });
 
             // Add more services here.
-            services.AddSingleton<IDbContainer>(Base.Container);
+            services.AddSingleton<IDbContainer>(Services.Base.Container);
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<ITokenService, TokenService>();

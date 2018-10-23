@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CFK_API.Models;
 using CFK_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace CFK_API.Controllers
 {
@@ -23,11 +25,29 @@ namespace CFK_API.Controllers
             Users = users;
         }
 
-        public ActionResult<Models.Outputs.User_Signed_In> User_SignIn(
-            [FromBody][Bind(new string[] { "Email", "Password", "Store_ID" })]
-            Models.User user)
+        [HttpPost("create")]
+        public ActionResult<object> CreateNewUser(User user)
         {
-            return null;
+            ModelState.Remove(user.Remove);
+
+            if (ModelState.IsValid)
+            {
+                return user;
+            }
+
+            return new User();
+        }
+
+        [HttpPost("clone")]
+        public ActionResult<object> Clone(object input)
+        {
+            return input;
+        }
+
+        [HttpGet("test")]
+        public ActionResult<string> Test()
+        {
+            return "Accessible";
         }
     }
 }
