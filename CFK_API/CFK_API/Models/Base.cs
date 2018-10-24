@@ -1,53 +1,59 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CFK_API.Models
 {
     public abstract class Base<T>
     {
-        protected static HashSet<string> Properties { get; private set; }
+        public static HashSet<string> Excluded { get; protected set; }
 
-        protected static HashSet<string> Excluded { get; set; }
+        public static IList<string> Fields { get; protected set; }
 
-        public string[] Remove { get { return Excluded.ToArray(); } }
-
-        public HashSet<string> _Fields { get { return Properties; } }
+        static Base()
+        {
+            Fields = new List<string>();
+            Excluded = new HashSet<string>();
+        }
 
         public Base()
         {
-            Properties = new HashSet<string>();
-            Excluded = new HashSet<string>();
-
-            var type = GetType();
-            foreach (var Property in type.GetProperties())
-            {
-                Properties.Add(Property.Name);
-            }
+            Fields = GetFields();
         }
 
-        public string Include(bool includeAll = false, params string[] fields)
+        public IList<string> GetFields()
         {
-            HashSet<string> inputs;
+            var fields = GetType().GetProperties();
+            var result = new List<string>();
+
+            foreach (var field in fields)
+            {
+                result.Add(field.Name);
+            }
+
+            return result;
+        }
+
+        public IList<string> SelectFields(bool includeAll = false, params string[] fields)
+        {
+            IList<string> outputs;
 
             if (fields.Count() == 0)
             {
-                inputs = new HashSet<string>(Properties);
+                outputs = new List<string>(Fields);
             }
             else
             {
-                inputs = new HashSet<string>(fields);
+                outputs = new List<string>(fields);
 
-                inputs.IntersectWith(Properties);
+                outputs = outputs.Intersect(Fields).ToList();
             }
 
             if (!includeAll)
             {
-                inputs.ExceptWith(Excluded);
+                outputs = outputs.Except(Excluded).ToList();
             }
 
-            return string.Join(", ", inputs);
+            return outputs;
         }
     }
 }

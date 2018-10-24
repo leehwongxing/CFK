@@ -1,43 +1,61 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CFK_API.Models
 {
-    public class Order
+    public class Order : Base<Order>
     {
-        [Required]
+        [Range(0, long.MaxValue, ErrorMessage = "Order_ID không được là số âm")]
         public long Order_ID { get; set; }
 
-        [MinLength(1, ErrorMessage = "OrdererName shouldn't be empty")]
         public string OrdererName { get; set; }
 
-        [MinLength(1, ErrorMessage = "OrdererAddr shouldn't be empty")]
         public string OrdererAddr { get; set; }
 
-        [MinLength(1, ErrorMessage = "ReceipentName shouldn't be empty")]
         public string ReceipentName { get; set; }
 
-        [MinLength(1, ErrorMessage = "ReceipentAddr shouldn't be empty")]
         public string ReceipentAddr { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Total không được là số âm")]
+        public double Total { get; set; }
 
         public string Note { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Discount can't be negative")]
+        [Range(0, double.MaxValue, ErrorMessage = "Discount không được là số âm")]
         public double Discount { get; set; }
 
         public string DiscountNote { get; set; }
 
+        [Range(0, long.MaxValue, ErrorMessage = "Ref_Customer không được là số âm")]
         public long Ref_Customer { get; set; }
 
+        [Range(0, long.MaxValue, ErrorMessage = "Ref_User không được là số âm")]
         public long Ref_User { get; set; }
 
-        [Range(1, long.MaxValue, ErrorMessage = "CreatedAt can't 0 or negative")]
+        [Range(0, int.MaxValue, ErrorMessage = "Ref_Store không được là số âm")]
+        public int Ref_Store { get; set; }
+
+        [Range(1, long.MaxValue, ErrorMessage = "CreatedAt phải là số dương")]
         public long CreateAt { get; set; }
 
-        [Range(1, long.MaxValue, ErrorMessage = "SentAt can't 0 or negative")]
+        [Range(0, long.MaxValue, ErrorMessage = "SentAt không được là số âm")]
         public long SentAt { get; set; }
+
+        public Order() : base()
+        {
+            Order_ID = 0;
+            OrdererName = "";
+            OrdererAddr = "";
+            ReceipentAddr = "";
+            ReceipentName = "";
+            Total = 0;
+            Note = "";
+            Discount = 0;
+            DiscountNote = "";
+            Ref_Customer = -1;
+            Ref_User = 0;
+            Ref_Store = 0;
+            CreateAt = Compute.Time.UnixNow;
+            SentAt = 0;
+        }
     }
 }

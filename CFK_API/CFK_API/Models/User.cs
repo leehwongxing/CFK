@@ -6,30 +6,30 @@ namespace CFK_API.Models
     public class User : Base<User>
     {
         [Required]
-        [Range(-1, int.MaxValue, ErrorMessage = "User_ID can't be 0 or negative")]
+        [Range(-1, int.MaxValue, ErrorMessage = "User_ID không thể là số âm")]
         public int User_ID { get; set; }
 
         [Required]
-        [RegularExpression("[\\p{L}\\s]+", ErrorMessage = "Username only support Latin characters")]
+        [RegularExpression("[\\p{L}\\s]+", ErrorMessage = "Username chỉ hổ trợ kí tự Latin")]
         public string Username { get; set; }
 
         [Required]
-        [MinLength(1, ErrorMessage = "Fullname mustn't be empty")]
+        [MinLength(1, ErrorMessage = "Fullname không được bỏ trống")]
         public string FullName { get; set; }
 
         [Required]
-        [EmailAddress(ErrorMessage = "Email must be a valid email address")]
+        [EmailAddress(ErrorMessage = "Email phải theo định dạng của email")]
         public string Email { get; set; }
 
         [Required]
-        [MinLength(10, ErrorMessage = "Password should be longer, like 10 chars at least")]
+        [MinLength(10, ErrorMessage = "Password tối thiểu 10 kí tự")]
         public string Password { get; set; }
 
         public long VerifiedAt { get; set; }
 
         public bool IsLocked { get; set; }
 
-        [Range(1, long.MaxValue, ErrorMessage = "CreatedAt can't be 0 or negative")]
+        [Range(1, long.MaxValue, ErrorMessage = "CreatedAt không thể là số âm")]
         public long CreatedAt { get; set; }
 
         [Range(1, int.MaxValue)]

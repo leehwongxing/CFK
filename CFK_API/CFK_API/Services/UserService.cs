@@ -114,7 +114,7 @@ namespace CFK_API.Services
 
         public object GetOne(long User_ID, params string[] fields)
         {
-            return Container.Connect().Query<User>(GetUser, new { User_ID, Fields = new User().Include(false, fields) }).Single();
+            return Container.Connect().Query<User>(GetUser, new { User_ID }).Single();
         }
 
         public bool Lock(long User_ID)

@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CFK_API.Models;
 using CFK_API.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Collections.Generic;
 
 namespace CFK_API.Controllers
 {
@@ -25,29 +19,20 @@ namespace CFK_API.Controllers
             Users = users;
         }
 
-        [HttpPost("create")]
-        public ActionResult<object> CreateNewUser(User user)
+        [HttpGet("clone")]
+        public Customer Clone()
         {
-            ModelState.Remove(user.Remove);
-
-            if (ModelState.IsValid)
-            {
-                return user;
-            }
-
-            return new User();
-        }
-
-        [HttpPost("clone")]
-        public ActionResult<object> Clone(object input)
-        {
-            return input;
+            return new Customer();
         }
 
         [HttpGet("test")]
-        public ActionResult<string> Test()
+        public IList<string> Test()
         {
-            return "Accessible";
+            var result = new Customer().GetFields();
+
+            Request.HttpContext.Response.Headers.Add("X-Total-Count", result.Count.ToString());
+
+            return result;
         }
     }
 }
