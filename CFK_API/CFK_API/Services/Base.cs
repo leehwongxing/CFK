@@ -12,7 +12,7 @@ namespace CFK_API.Services
     {
         SqlConnection Connect();
 
-        Models.Vault Config { get; }
+        Vault Config { get; }
     }
 
     public class Base : IDbContainer

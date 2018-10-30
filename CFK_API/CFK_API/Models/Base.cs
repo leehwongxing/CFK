@@ -17,7 +17,8 @@ namespace CFK_API.Models
 
         public Base()
         {
-            Fields = GetFields();
+            if (Fields.Count == 0)
+                Fields = GetFields();
         }
 
         public IList<string> GetFields()

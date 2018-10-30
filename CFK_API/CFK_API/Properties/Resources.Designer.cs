@@ -63,15 +63,6 @@ namespace CFK_API.Properties {
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string CONNSTR {
-            get {
-                return ResourceManager.GetString("CONNSTR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
         internal static string IMGUR_ACCOUNT {
             get {
                 return ResourceManager.GetString("IMGUR_ACCOUNT", resourceCulture);

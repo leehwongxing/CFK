@@ -1,5 +1,6 @@
 using Jil;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -38,14 +39,14 @@ namespace CFK_API.Compute
                     File.Create(DataFile);
 
                 DataSource = JSON
-                    .Deserialize<IQueryable<T>>(File
-                    .ReadAllText(DataFile));
+                    .Deserialize<IQueryable<T>>(
+                    File.ReadAllText(DataFile));
                 return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                DataSource = null;
+                DataSource = new List<T>().AsQueryable();
                 return false;
             }
         }

@@ -1,14 +1,14 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     10/24/2018 6:41:24 PM                        */
+/* Created on:     10/26/2018 7:08:16 PM                        */
 /*==============================================================*/
 
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
-   where r.fkeyid = object_id('Dim_Addresses') and o.name = 'FK_CustomerAddresses_Dim_Customers')
+   where r.fkeyid = object_id('Dim_Addresses') and o.name = 'FK_Customer_Addresses_Dim_Customers')
 alter table Dim_Addresses
-   drop constraint FK_CustomerAddresses_Dim_Customers
+   drop constraint FK_Customer_Addresses_Dim_Customers
 go
 
 if exists (select 1
@@ -622,9 +622,9 @@ go
 /* Table: Dim_Status                                            */
 /*==============================================================*/
 create table Dim_Status (
-   Status               nvarchar(64)         not null,
+   Status_ID            nvarchar(64)         not null,
    Prority              int                  not null,
-   constraint PK_DIM_STATUS primary key nonclustered (Status)
+   constraint PK_DIM_STATUS primary key nonclustered (Status_ID)
 )
 go
 
@@ -777,11 +777,11 @@ go
 /*==============================================================*/
 create table Order_Status (
    Order_ID             bigint               not null,
-   Status               nvarchar(64)         not null,
+   Status_ID            nvarchar(64)         not null,
    Note                 nvarchar(256)        not null,
    CreatedAt            bigint               not null default -1,
    Ref_User             bigint               not null default -1,
-   constraint PK_ORDER_STATUS primary key (Order_ID, Status)
+   constraint PK_ORDER_STATUS primary key (Order_ID, Status_ID)
 )
 go
 
@@ -797,7 +797,7 @@ go
 /* Index: ORDER_STATUS2_FK                                      */
 /*==============================================================*/
 create index ORDER_STATUS2_FK on Order_Status (
-Status ASC
+Status_ID ASC
 )
 go
 
@@ -945,7 +945,7 @@ Role_ID ASC
 go
 
 alter table Dim_Addresses
-   add constraint FK_CustomerAddresses_Dim_Customers foreign key (Customer_ID)
+   add constraint FK_Customer_Addresses_Dim_Customers foreign key (Customer_ID)
       references Dim_Customers (Customer_ID)
 go
 
@@ -985,8 +985,8 @@ alter table Order_Status
 go
 
 alter table Order_Status
-   add constraint FK_Order_Status2_Dim_Status foreign key (Status)
-      references Dim_Status (Status)
+   add constraint FK_Order_Status2_Dim_Status foreign key (Status_ID)
+      references Dim_Status (Status_ID)
 go
 
 alter table Product_Combo

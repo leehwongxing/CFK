@@ -1,5 +1,6 @@
 using CFK_API.Models;
 using CFK_API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -33,6 +34,12 @@ namespace CFK_API.Controllers
             Request.HttpContext.Response.Headers.Add("X-Total-Count", result.Count.ToString());
 
             return result;
+        }
+
+        [HttpGet("auth")]
+        public Models.Outputs.Base Authenticated()
+        {
+            return new Models.Outputs.Base();
         }
     }
 }

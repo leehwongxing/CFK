@@ -1,6 +1,7 @@
 using CFK_API.Models;
 using Dapper;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CFK_API.Services
 {
@@ -15,6 +16,8 @@ namespace CFK_API.Services
 
     public class RoleService : IRoleService
     {
+        private Compute.Sample<Role> Sample { get; set; }
+
         private readonly string CreateRole
             = @"INSERT INTO Dim_Roles VALUES (@Role_ID, @RoleName, @IsGlobal)";
 
@@ -29,6 +32,18 @@ namespace CFK_API.Services
         public RoleService(IDbContainer container)
         {
             Container = container;
+
+            Preload();
+        }
+
+        private void Preload()
+        {
+            var check = @"SELECT COUNT(Role_ID) FROM Dim_Roles";
+
+            if (Container.Connect().Query<int>(check).Single() == 0 && Sample.DataSource.Count() > 0)
+            {
+                Container.Connect().Execute(CreateRole, Sample.DataSource);
+            }
         }
 
         public Role Create(string Role_ID, string RoleName, bool IsGlobal = false)

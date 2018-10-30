@@ -10,9 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include=".Data\" />
+    <Folder Include="Middlewares\" />
     <Folder Include="Models\Inputs\" />
     <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".Data\.build" />
   </ItemGroup>
 
   <ItemGroup>

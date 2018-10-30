@@ -1,6 +1,7 @@
 using CFK_API.Models;
 using Dapper;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -24,7 +25,7 @@ namespace CFK_API.Services
 
         object GetOne(
             long User_ID,
-            params string[] fields);
+            IEnumerable<string> fields);
     }
 
     public class UserService : IUserService
@@ -112,7 +113,7 @@ namespace CFK_API.Services
             return _User;
         }
 
-        public object GetOne(long User_ID, params string[] fields)
+        public object GetOne(long User_ID, IEnumerable<string> fields)
         {
             return Container.Connect().Query<User>(GetUser, new { User_ID }).Single();
         }

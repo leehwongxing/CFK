@@ -5,18 +5,19 @@ namespace CFK_API.Models.Outputs
 {
     public class Base
     {
-        public int _Code { get; set; }
+        public int Code { get; set; }
 
-        public IList<string> _Messages { get; set; }
+        public long Version { get { return Compute.Time.Version; } }
 
-        public Object _Metadata { get; set; }
+        public IList<string> Errors { get; set; }
 
-        public string _ResourceName { get; set; }
+        public object Metadata { get; set; }
 
         public Base()
         {
-            _Metadata = new object();
-            _Messages = new List<string>();
+            Metadata = new object();
+            Errors = new List<string>();
+            Code = 200;
         }
     }
 }
