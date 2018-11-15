@@ -1,0 +1,14 @@
+Các thứ vừa thực hiện xong:
+
+- Compute/Sample, hardcode data sử dụng Linq để truy xuât và lưu trừ dử liệu mẫu,
+tệp tự lưu tại thư mục ".Data". sử dụng bằng cách tạo biến
+"var Users = new Compute.Sample<Models.User>()"
+
+và truy cập dữ liệu thông qua
+"[biến kiểu Compute.Sample].DataSource"
+
+TODO:
+
+UserController (Login vào store, tạo User mới)
+ProductController (Tạo Product mới, Filter)
+ImageController (Lưu ảnh được Upload, clone sang Imgur)
